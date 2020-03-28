@@ -1,4 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../screens/cart_screen.dart';
+
+import '../widgets/badge.dart';
+import '../providers/cart.dart';
 
 import '../widgets/prdoucts_grid.dart';
 
@@ -20,21 +26,44 @@ class _ProductOverviewScreenState extends State<ProductOverviewScreen> {
       appBar: AppBar(
         title: Text("Products"),
         actions: <Widget>[
-          PopupMenuButton(icon: Icon(Icons.more_vert),
-          onSelected: (Favorites showScreenItems) {
-            setState(() {
-              if (showScreenItems == Favorites.Favourites) {
-                _showFavorites =true;
-              }
-              else{
-                _showFavorites = false;
-              }
-            });
-          },
-          itemBuilder: (_) => [
-            PopupMenuItem(child: Text("Show Favorites"), value: Favorites.Favourites,),
-            PopupMenuItem(child: Text("Show All"), value: Favorites.All,)
-          ],)
+          PopupMenuButton(
+            icon: Icon(Icons.more_vert),
+            onSelected: (Favorites showScreenItems) {
+              setState(
+                () {
+                  if (showScreenItems == Favorites.Favourites) {
+                    _showFavorites = true;
+                  } else {
+                    _showFavorites = false;
+                  }
+                },
+              );
+            },
+            itemBuilder: (_) => [
+              PopupMenuItem(
+                child: Text("Show Favorites"),
+                value: Favorites.Favourites,
+              ),
+              PopupMenuItem(
+                child: Text("Show All"),
+                value: Favorites.All,
+              )
+            ],
+          ),
+          Consumer<Cart>(
+            builder: (_, cartData, ch) => Badge(
+              child: ch,
+              value: cartData.itemCount.toString(),
+            ),
+            child: IconButton(
+              icon: Icon(
+                Icons.shopping_cart,
+              ),
+              onPressed: () {
+                Navigator.of(context).pushNamed(CartScreen.routeName);
+              },
+            ),
+          ),
         ],
       ),
       body: ProductsGrid(_showFavorites),
