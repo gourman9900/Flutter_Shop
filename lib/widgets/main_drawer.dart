@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../screens/user_product_screen.dart';
 import '../screens/order_screen.dart';
 
 class MainDrawer extends StatelessWidget {
@@ -43,6 +44,8 @@ class MainDrawer extends StatelessWidget {
               "Orders",
               () => Navigator.of(context)
                   .pushReplacementNamed(OrderScreen.routeName)),
+          Divider(),
+          buildDrawerItems(Icon(Icons.edit), "Manage Products", () => Navigator.of(context).pushReplacementNamed(UserProductScreen.routeName),),
         ],
       ),
     );
