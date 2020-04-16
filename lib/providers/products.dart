@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
+import '../models/http_exception.dart';
 import './product.dart';
 
 class Products with ChangeNotifier {
@@ -83,9 +84,21 @@ class Products with ChangeNotifier {
     }
   }
 
-  void updateProduct(String id, Product product) {
+  Future<void> updateProduct(String id, Product product) async {
     final productIndex = _items.indexWhere((item) => item.id == id);
     if (productIndex >= 0) {
+      final url = "https://flutter-shop-dcd01.firebaseio.com/products/$id.json";
+      await http.patch(
+        url,
+        body: json.encode(
+          {
+            "title": product.title,
+            "description": product.description,
+            "price": product.price,
+            "imageUrl": product.imageUrl,
+          },
+        ),
+      );
       _items[productIndex] = product;
       notifyListeners();
     } else {
@@ -93,9 +106,21 @@ class Products with ChangeNotifier {
     }
   }
 
-  void deleteProducts(String id) {
-    _items.removeWhere((item) => item.id == id);
+  Future<void> deleteProducts(String id) async {
+    final url = "https://flutter-shop-dcd01.firebaseio.com/products/$id.json";
+    final existingProductIndex = _items.indexWhere((item) => item.id == id);
+    var existingProduct = _items[existingProductIndex];
+    _items.removeAt(existingProductIndex);
     notifyListeners();
+    await http.delete(url).then(
+      (response) {
+        if (response.statusCode >= 400) {
+          _items.add(existingProduct);
+          notifyListeners();
+          throw HttpException("Something Went Wrong");
+        }
+      },
+    );
   }
 
   Future<void> fetchPrdoucts() async {
