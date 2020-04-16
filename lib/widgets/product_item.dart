@@ -37,7 +37,7 @@ class ProductItem extends StatelessWidget {
           title: Text(
             product.title,
             textAlign: TextAlign.center,
-            overflow: TextOverflow.visible,
+            softWrap: true,
           ),
           leading: Consumer<Product>(
             builder: (ctx, product, child) => IconButton(

@@ -78,13 +78,15 @@ class _EditUserProductsState extends State<EditUserProducts> {
     }
   }
 
-  void _saveForm() {
+  Future<void> _saveForm() async {
     // var _validator = _form.currentState.validate();
     // if (!_validator){
     //   return;
     // }
     _form.currentState.save();
-    _isLoading = true;
+    setState(() {
+      _isLoading = true;
+    });
     if (_editedProduct.id != null) {
       Provider.of<Products>(context, listen: false)
           .updateProduct(_editedProduct.id, _editedProduct);
@@ -92,19 +94,42 @@ class _EditUserProductsState extends State<EditUserProducts> {
         _isLoading = false;
       });
     } else {
-      Provider.of<Products>(context, listen: false)
-          .addProduct(_editedProduct)
-          .then((_) {
+      try {
+        await Provider.of<Products>(context, listen: false)
+            .addProduct(_editedProduct);
+      } catch (error) {
+        showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: Text("Error Occured"),
+            content: Text(error.toString()),
+            actions: <Widget>[
+              FlatButton(
+                child: Text("Ok"),
+                onPressed: () {
+                  // setState(() {
+                  //   _isLoading = false;
+                  // });
+                  Navigator.of(ctx).pop();
+                },
+              )
+            ],
+          ),
+        );
+      } finally {
+        setState(
+          () {
+            _isLoading = false;
+          },
+        );
         Navigator.of(context).pop();
-        setState(() {
-          _isLoading = false;
-        });
-      });
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    // print(_isLoading.toString());
     return Scaffold(
       appBar: AppBar(
         title: Text("Edit Products"),
