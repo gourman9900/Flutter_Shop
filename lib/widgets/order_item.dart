@@ -18,60 +18,64 @@ class _OrderItemState extends State<OrderItem> {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: EdgeInsets.all(10.0),
-      child: Column(
-        children: <Widget>[
-          ListTile(
-            title: Text(
-              "\$ ${widget.order.totalAmount.toStringAsFixed(2)}",
-            ),
-            subtitle: Text(
-              DateFormat("dd/MM/yyyy hh:mm").format(widget.order.dateTime),
-            ),
-            trailing: IconButton(
-              icon: Icon(
-                _expanded ? Icons.expand_less : Icons.expand_more,
+    return AnimatedContainer(
+      duration: Duration(milliseconds: 300),
+      height: _expanded ? min(widget.order.products.length * 20.0 + 110, 200) : 95,
+          child: Card(
+        margin: EdgeInsets.all(10.0),
+        child: Column(
+          children: <Widget>[
+            ListTile(
+              title: Text(
+                "\$ ${widget.order.totalAmount.toStringAsFixed(2)}",
               ),
-              onPressed: () {
-                setState(() {
-                  _expanded = !_expanded;
-                });
-              },
-            ),
-          ),
-          if (_expanded)
-            Container(
-              height: min(widget.order.products.length * 20.0 + 10, 100),
-              child: ListView.builder(
-                itemBuilder: (ctx, index) {
-                  return Padding(
-                    padding: const EdgeInsets.all(5.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        Text(
-                          widget.order.products[index].title,
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18.0,
-                          ),
-                        ),
-                        Text(
-                          "${(widget.order.products[index].quantity)} x \$ ${(widget.order.products[index].price)}",
-                          style: TextStyle(
-                            fontSize: 18.0,
-                            color: Colors.grey,
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
+              subtitle: Text(
+                DateFormat("dd/MM/yyyy hh:mm").format(widget.order.dateTime),
+              ),
+              trailing: IconButton(
+                icon: Icon(
+                  _expanded ? Icons.expand_less : Icons.expand_more,
+                ),
+                onPressed: () {
+                  setState(() {
+                    _expanded = !_expanded;
+                  });
                 },
-                itemCount: widget.order.products.length,
               ),
             ),
-        ],
+              AnimatedContainer(
+                duration: Duration(milliseconds: 300),
+                height: _expanded ? min(widget.order.products.length * 20.0 + 10, 100) : 0,
+                child: ListView.builder(
+                  itemBuilder: (ctx, index) {
+                    return Padding(
+                      padding: const EdgeInsets.all(5.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          Text(
+                            widget.order.products[index].title,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18.0,
+                            ),
+                          ),
+                          Text(
+                            "${(widget.order.products[index].quantity)} x \$ ${(widget.order.products[index].price)}",
+                            style: TextStyle(
+                              fontSize: 18.0,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                  itemCount: widget.order.products.length,
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }

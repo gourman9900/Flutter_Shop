@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../screens/user_product_screen.dart';
 import '../screens/order_screen.dart';
 
 import '../widgets/navigation_items.dart';
+
+import '../providers/auth.dart';
 
 class MainDrawer extends StatelessWidget {
   // Widget buildDrawerItems(Icon icon, String title, Function tapHandler) {
@@ -63,6 +66,15 @@ class MainDrawer extends StatelessWidget {
             icon: Icon(Icons.edit),
             tapHandler: () => Navigator.of(context)
                 .pushReplacementNamed(UserProductScreen.routeName),
+          ),
+          Divider(height: 7.0,),
+          NavigationItem(
+            title: "Logout",
+            icon: Icon(Icons.exit_to_app),
+            tapHandler: () {
+              Navigator.of(context).pop();
+              Provider.of<Auth>(context,listen: false).logout();
+            },
           ),
         ],
       ),

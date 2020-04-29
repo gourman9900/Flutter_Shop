@@ -24,29 +24,29 @@ class Product with ChangeNotifier {
       this.isFavourite = false,
       this.price});
 
-  
-  void _setFavValue (bool oldvalue) {
+  void _setFavValue(bool oldvalue) {
     isFavourite = oldvalue;
     notifyListeners();
   }
 
-  Future<void> toggleFavorites(String authToken) async {
+  Future<void> toggleFavorites(String authToken, String userId) async {
     final oldState = isFavourite;
     isFavourite = !isFavourite;
     notifyListeners();
-    final url = "https://flutter-shop-dcd01.firebaseio.com/products/$id.json?auth=$authToken";
+    final url =
+        "https://flutter-shop-dcd01.firebaseio.com/userFavorites/$userId/$id.json?auth=$authToken";
     try {
-      final response = await http.patch(
+      final response = await http.put(
         url,
         body: json.encode(
-          {"isFavorite": isFavourite},
+          isFavourite,
         ),
       );
       if (response.statusCode >= 400) {
         _setFavValue(oldState);
       }
     } catch (error) {
-     _setFavValue(oldState);
+      _setFavValue(oldState);
     }
   }
 }

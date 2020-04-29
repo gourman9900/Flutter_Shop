@@ -18,22 +18,26 @@ class ProductItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final product = Provider.of<Product>(context, listen: false);
     final cart = Provider.of<Cart>(context, listen: false);
-    final authData = Provider.of<Auth>(context,listen: false);
+    final authData = Provider.of<Auth>(context, listen: false);
     return ClipRRect(
       borderRadius: BorderRadius.circular(10),
       child: GridTile(
         child: GestureDetector(
-          onTap: () {
-            Navigator.of(context).pushNamed(
-              ProductDetailScreen.routeName,
-              arguments: product.id,
-            );
-          },
-          child: Image.network(
-            product.imageUrl,
-            fit: BoxFit.cover,
-          ),
-        ),
+            onTap: () {
+              Navigator.of(context).pushNamed(
+                ProductDetailScreen.routeName,
+                arguments: product.id,
+              );
+            },
+            child: Hero(
+              tag: product.id,
+              child: FadeInImage(
+                placeholder:
+                    AssetImage("assets/images/product-placeholder.png"),
+                image: NetworkImage(product.imageUrl),
+                fit: BoxFit.cover,
+              ),
+            )),
         footer: GridTileBar(
           backgroundColor: Colors.black87,
           title: Text(
@@ -47,7 +51,7 @@ class ProductItem extends StatelessWidget {
                 product.isFavourite ? Icons.favorite : Icons.favorite_border,
               ),
               onPressed: () {
-                product.toggleFavorites(authData.token);
+                product.toggleFavorites(authData.token, authData.userId);
               },
               color: Theme.of(context).accentColor,
             ),

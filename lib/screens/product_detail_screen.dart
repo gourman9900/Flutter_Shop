@@ -13,46 +13,67 @@ class ProductDetailScreen extends StatelessWidget {
         Provider.of<Products>(context, listen: false).findById(productId);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(loadedProduct.title),
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: <Widget>[
-            Container(
-              height: 300,
-              width: double.infinity,
-              child: Image.network(
-                loadedProduct.imageUrl,
-                fit: BoxFit.contain,
+      // appBar: AppBar(
+      //   title: Text(loadedProduct.title),
+      // ),
+      body: CustomScrollView(
+        slivers: <Widget>[
+          SliverAppBar(
+            expandedHeight: 300,
+            pinned: true,
+            flexibleSpace: FlexibleSpaceBar(
+              title: Text(
+                loadedProduct.title,
+              ),
+              background: Hero(
+                tag: loadedProduct.id,
+                child: Image.network(
+                  loadedProduct.imageUrl,
+                  fit: BoxFit.contain,
+                ),
               ),
             ),
-            SizedBox(height: 20,),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Text(
-                  loadedProduct.title,
-                  style: TextStyle(
-                    fontSize: 30,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  textAlign: TextAlign.start,
+          ),
+          SliverList(
+            delegate: SliverChildListDelegate(
+              [
+                SizedBox(
+                  height: 20,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: <Widget>[
+                    // Text(
+                    //   loadedProduct.title,
+                    //   style: TextStyle(
+                    //     fontSize: 30,
+                    //     fontWeight: FontWeight.bold,
+                    //   ),
+                    //   textAlign: TextAlign.start,
+                    // ),
+                    Text(
+                      "\$ ${loadedProduct.price}",
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold,),
+                          textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+                SizedBox(
+                  height: 20,
                 ),
                 Text(
-                  "\$ ${loadedProduct.price}",
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  textAlign: TextAlign.end,
+                  "${loadedProduct.description}",
+                  style: TextStyle(fontSize: 20, color: Colors.grey),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(
+                  height: 800,
                 ),
               ],
             ),
-            SizedBox(height: 20,),
-            Text(
-              "${loadedProduct.description}",
-              style: TextStyle(fontSize: 20, color: Colors.grey),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

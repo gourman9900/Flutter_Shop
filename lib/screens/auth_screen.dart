@@ -106,7 +106,7 @@ class FormWidget extends StatefulWidget {
   _FormWidgetState createState() => _FormWidgetState();
 }
 
-class _FormWidgetState extends State<FormWidget> {
+class _FormWidgetState extends State<FormWidget> with SingleTickerProviderStateMixin {
   final GlobalKey<FormState> _formKey = GlobalKey();
   final _passwordController = TextEditingController();
   var _authMode = AuthType.Login;
@@ -116,6 +116,24 @@ class _FormWidgetState extends State<FormWidget> {
   };
 
   var _isLoading = false;
+  AnimationController _controller;
+  Animation<Size> _heightanimation;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _controller = AnimationController(vsync: this,duration: Duration(milliseconds: 300));
+    _heightanimation = Tween<Size>(begin: Size(double.infinity,270),end: Size(double.infinity,332)).animate(CurvedAnimation(parent: _controller,curve: Curves.fastOutSlowIn));
+    _heightanimation.addListener(() => setState(() {}));
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    // _controller.dispose();
+  }
 
   void showErrorDialog(String message) {
     showDialog(
@@ -174,90 +192,35 @@ class _FormWidgetState extends State<FormWidget> {
   void toggleAuthMode() {
     if (_authMode == AuthType.Login) {
       _authMode = AuthType.SignUp;
+      // _controller.forward();
     } else {
       _authMode = AuthType.Login;
+      // _controller.reverse();
     }
   }
 
   @override
   Widget build(BuildContext context) {
     // print(_authMode);
-    return _isLoading
-        ? CircularProgressIndicator(
-            backgroundColor: Colors.white,
-          )
-        : SingleChildScrollView(
-            child: Card(
-              elevation: 5.0,
-              child: Form(
-                key: _formKey,
-                autovalidate: true,
-                child: Column(
-                  children: <Widget>[
-                    Theme(
-                      data: ThemeData(
-                          primaryColor: widget.gradient_end,
-                          accentColor: Colors.white),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 12, horizontal: 8),
-                        child: TextFormField(
-                          decoration: InputDecoration(
-                            labelText: "E-mail",
-                            labelStyle: TextStyle(),
-                            border: UnderlineInputBorder(
-                              borderSide:
-                                  BorderSide(color: widget.gradient_end),
-                            ),
-                            // border: OutlineInputBorder(borderSide: BorderSide(color: gradient_end)),
-                            contentPadding: EdgeInsets.all(2.0),
-                          ),
-                          keyboardType: TextInputType.emailAddress,
-                          validator: (value) {
-                            if (value.isEmpty ||
-                                !value.contains("@") ||
-                                !value.contains(".")) {
-                              return "Invalid Email";
-                            }
-                          },
-                          onSaved: (value) {
-                            _authData["email"] = value;
-                          },
-                        ),
-                      ),
-                    ),
-                    Theme(
-                      data: ThemeData(
-                          primaryColor: widget.gradient_end,
-                          accentColor: Colors.white),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 12, horizontal: 8),
-                        child: TextFormField(
-                          obscureText: true,
-                          decoration: InputDecoration(
-                            labelText: "Password",
-                            labelStyle: TextStyle(),
-                            border: UnderlineInputBorder(
-                              borderSide:
-                                  BorderSide(color: widget.gradient_end),
-                            ),
-                            // border: OutlineInputBorder(borderSide: BorderSide(color: gradient_end)),
-                            contentPadding: EdgeInsets.all(2.0),
-                          ),
-                          controller: _passwordController,
-                          validator: (value) {
-                            if (value.isEmpty || value.length < 8) {
-                              return "Password should be atleast 8 characters long";
-                            }
-                          },
-                          onSaved: (value) {
-                            _authData["password"] = value;
-                          },
-                        ),
-                      ),
-                    ),
-                    if (_authMode == AuthType.SignUp)
+    return SingleChildScrollView(
+            child: AnimatedContainer(
+              duration: Duration(milliseconds: 300),
+              curve: Curves.fastOutSlowIn,
+              height: _authMode == AuthType.SignUp ? 332 : 270,
+              // AnimatedBuilder(
+              //   animation: animation,
+              //   child: child,
+              //   builder: (BuildContext context, Widget child) {
+              //     return ;
+              //   },
+              // ),
+              child: Card(
+                elevation: 5.0,
+                child: Form(
+                  key: _formKey,
+                  autovalidate: false,
+                  child: Column(
+                    children: <Widget>[
                       Theme(
                         data: ThemeData(
                             primaryColor: widget.gradient_end,
@@ -266,63 +229,128 @@ class _FormWidgetState extends State<FormWidget> {
                           padding: const EdgeInsets.symmetric(
                               vertical: 12, horizontal: 8),
                           child: TextFormField(
-                              obscureText: true,
-                              decoration: InputDecoration(
-                                labelText: "Confirm Password",
-                                labelStyle: TextStyle(),
-                                border: UnderlineInputBorder(
-                                  borderSide:
-                                      BorderSide(color: widget.gradient_end),
-                                ),
-                                // border: OutlineInputBorder(borderSide: BorderSide(color: gradient_end)),
-                                contentPadding: EdgeInsets.all(2.0),
+                            decoration: InputDecoration(
+                              labelText: "E-mail",
+                              labelStyle: TextStyle(),
+                              border: UnderlineInputBorder(
+                                borderSide:
+                                    BorderSide(color: widget.gradient_end),
                               ),
-                              validator: _authMode == AuthType.SignUp
-                                  ? (value) {
-                                      if (value != _passwordController.text) {
-                                        return "Passwords do not match";
-                                      }
-                                    }
-                                  : null),
-                        ),
-                      ),
-                    if (_isLoading)
-                      CircularProgressIndicator()
-                    else
-                      Container(
-                        width: 140,
-                        height: 40,
-                        margin: EdgeInsets.only(top: 20),
-                        child: RaisedButton(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(10),
+                              // border: OutlineInputBorder(borderSide: BorderSide(color: gradient_end)),
+                              contentPadding: EdgeInsets.all(2.0),
                             ),
+                            keyboardType: TextInputType.emailAddress,
+                            validator: (value) {
+                              if (value.isEmpty ||
+                                  !value.contains("@") ||
+                                  !value.contains(".")) {
+                                return "Invalid Email";
+                              }
+                            },
+                            onSaved: (value) {
+                              _authData["email"] = value;
+                            },
                           ),
-                          child: Text(
-                            _authMode == AuthType.Login ? "Log In" : "Sign Up",
-                            style: TextStyle(fontSize: 20),
-                          ),
-                          onPressed: () {
-                            _submit();
-                          },
-                          color: widget.gradient_end,
-                          textColor: Colors.white,
                         ),
                       ),
-                    FlatButton(
-                      child: Text(
-                        _authMode == AuthType.Login ? "Sign Up" : "Login",
-                        style: TextStyle(fontSize: 18),
+                      Theme(
+                        data: ThemeData(
+                            primaryColor: widget.gradient_end,
+                            accentColor: Colors.white),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 12, horizontal: 8),
+                          child: TextFormField(
+                            obscureText: true,
+                            decoration: InputDecoration(
+                              labelText: "Password",
+                              labelStyle: TextStyle(),
+                              border: UnderlineInputBorder(
+                                borderSide:
+                                    BorderSide(color: widget.gradient_end),
+                              ),
+                              // border: OutlineInputBorder(borderSide: BorderSide(color: gradient_end)),
+                              contentPadding: EdgeInsets.all(2.0),
+                            ),
+                            controller: _passwordController,
+                            validator: (value) {
+                              if (value.isEmpty || value.length < 8) {
+                                return "Password should be atleast 8 characters long";
+                              }
+                            },
+                            onSaved: (value) {
+                              _authData["password"] = value;
+                            },
+                          ),
+                        ),
                       ),
-                      onPressed: () {
-                        setState(() {
-                          toggleAuthMode();
-                        });
-                      },
-                      textColor: widget.gradient_end,
-                    )
-                  ],
+                      if (_authMode == AuthType.SignUp)
+                        Theme(
+                          data: ThemeData(
+                              primaryColor: widget.gradient_end,
+                              accentColor: Colors.white),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 12, horizontal: 8),
+                            child: TextFormField(
+                                obscureText: true,
+                                decoration: InputDecoration(
+                                  labelText: "Confirm Password",
+                                  labelStyle: TextStyle(),
+                                  border: UnderlineInputBorder(
+                                    borderSide:
+                                        BorderSide(color: widget.gradient_end),
+                                  ),
+                                  // border: OutlineInputBorder(borderSide: BorderSide(color: gradient_end)),
+                                  contentPadding: EdgeInsets.all(2.0),
+                                ),
+                                validator: _authMode == AuthType.SignUp
+                                    ? (value) {
+                                        if (value != _passwordController.text) {
+                                          return "Passwords do not match";
+                                        }
+                                      }
+                                    : null),
+                          ),
+                        ),
+                      if (_isLoading)
+                        CircularProgressIndicator(backgroundColor: Colors.white,)
+                      else
+                        Container(
+                          width: 140,
+                          height: 40,
+                          margin: EdgeInsets.only(top: 20),
+                          child: RaisedButton(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(10),
+                              ),
+                            ),
+                            child: Text(
+                              _authMode == AuthType.Login ? "Log In" : "Sign Up",
+                              style: TextStyle(fontSize: 20),
+                            ),
+                            onPressed: () {
+                              _submit();
+                            },
+                            color: widget.gradient_end,
+                            textColor: Colors.white,
+                          ),
+                        ),
+                      FlatButton(
+                        child: Text(
+                          _authMode == AuthType.Login ? "Sign Up" : "Login",
+                          style: TextStyle(fontSize: 18),
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            toggleAuthMode();
+                          });
+                        },
+                        textColor: widget.gradient_end,
+                      )
+                    ],
+                  ),
                 ),
               ),
             ),

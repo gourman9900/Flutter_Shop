@@ -43,8 +43,9 @@ class Products with ChangeNotifier {
   ];
 
   final String authToken;
+  final String userId;
 
-  Products(this.authToken,this._items);
+  Products(this.authToken,this.userId,this._items);
 
   List<Product> get items {
     return [..._items];
@@ -67,9 +68,9 @@ class Products with ChangeNotifier {
           {
             "title": product.title,
             "price": product.price,
-            "isFavorite": false,
             "description": product.description,
             "imageUrl": product.imageUrl,
+            "creatorId": userId,
           },
         ),
       );
@@ -127,16 +128,20 @@ class Products with ChangeNotifier {
     );
   }
 
-  Future<void> fetchProducts() async {
+  Future<void> fetchProducts([bool isUserProducts = false]) async {
     // print(authToken);
     try {
-      final url = "https://flutter-shop-dcd01.firebaseio.com/products.json?auth=$authToken";
+      var productsfilter = isUserProducts ? 'orderBy="creatorId"&equalTo="$userId"' : "";
+      var url = "https://flutter-shop-dcd01.firebaseio.com/products.json?auth=$authToken&$productsfilter";
       final response = await http.get(url);
       final responseBody = json.decode(response.body) as Map<String, dynamic>;
       final List<Product> loadedProducts = [];
       if (responseBody == null) {
         return;
       }
+      url = "https://flutter-shop-dcd01.firebaseio.com/userFavorites/$userId.json?auth=$authToken";
+      final favoriteResponse = await http.get(url);
+      final favoriteData = json.decode(favoriteResponse.body);
       responseBody.forEach(
         (prodId, productsData) {
           loadedProducts.add(
@@ -145,7 +150,7 @@ class Products with ChangeNotifier {
               title: productsData["title"],
               description: productsData["description"],
               price: productsData["price"],
-              isFavourite: productsData["isFavorite"],
+              isFavourite: favoriteData == null ? false : favoriteData[prodId] ?? false,
               imageUrl: productsData["imageUrl"],
             ),
           );
